@@ -76,12 +76,16 @@ struct Point {
 };
 constexpr const Point Point::Origin{ 0, 0 };
 
+struct IntersectionPoint: Point{
+	int totalDistance;
+};
 
 bool between(int from, int to, int target) {
 	return  (from - target) * (to - target) <= 0;
 }
 
 struct LineSegment: Instruction {
+	int previousDistance;
 	Point begin;
 	Point end;
 
@@ -92,7 +96,7 @@ struct LineSegment: Instruction {
 			(plane == Plane::Vertical && begin.x == target.x && between(begin.y, end.y, target.y));
 	}
 
-	std::optional<Point> Intersect(const LineSegment &other) const {
+	std::optional<IntersectionPoint> Intersect(const LineSegment &other) const {
 		const auto myPlane = GetPlane(direction);
 		const auto otherPlane = GetPlane(other.direction);
 
@@ -100,10 +104,13 @@ struct LineSegment: Instruction {
 			return std::nullopt;
 		}
 
-		Point intersection = (myPlane == Plane::Horizontal) ? Point{ other.begin.x, begin.y } : Point{ begin.x, other.begin.y };
+		Point p = (myPlane == Plane::Horizontal) ? Point{ other.begin.x, begin.y } : Point{ begin.x, other.begin.y };
 
-		if (Hit(intersection) && other.Hit(intersection)) {
-			return intersection;
+		if (Hit(p) && other.Hit(p)) {
+			int dist = previousDistance + begin.Distance(p) + other.previousDistance + other.begin.Distance(p);
+
+			IntersectionPoint ip { p, dist };
+			return ip;
 		}
 		else{
 			return std::nullopt;
@@ -143,8 +150,13 @@ std::ostream& operator<<(std::ostream &os, const Point& p) {
 	return os;
 }
 
+std::ostream &operator<<(std::ostream &os, const IntersectionPoint &ip) {
+	std::cout << "{" << ip.x << ", " << ip.y << ", dist: " << ip.totalDistance << "}";
+	return os;
+}
+
 std::ostream& operator << (std::ostream & os, const LineSegment& s) {
-	std::cout << "LineSegment{"<< (Instruction&)(s) << ", " << s.begin << ", " << s.end << "}";
+	std::cout << "LineSegment{"<< (Instruction&)(s) << ", " << s.previousDistance << ", " << s.begin << ", " << s.end << "}";
 	return os;
 }
 
@@ -189,9 +201,10 @@ std::vector<Instruction> Tokenise(const std::string &input) {
 auto Render(const std::vector<Instruction> &instructions) {
 	std::vector<LineSegment> result;
 	auto current = Point::Origin;
+	int distanceSum = 0;
 
 	for (const auto &i : instructions) {
-		LineSegment currentSegment{i.direction, i.distance, current};
+		LineSegment currentSegment{i.direction, i.distance, distanceSum, current};
 
 		// walk the line
 		for (int step = 0; step < i.distance; ++step) {
@@ -201,6 +214,8 @@ auto Render(const std::vector<Instruction> &instructions) {
 		currentSegment.end = current;
 
 		result.emplace_back(currentSegment);
+
+		distanceSum += i.distance;
 	}
 
 	return result;
@@ -222,7 +237,7 @@ auto Render(const LineSegment &segment) {
 	return result;
 }
 
-std::string Draw(const std::vector<std::vector<LineSegment>> &segmentVectors, std::vector<Point> &intersections) {
+std::string Draw(const std::vector<std::vector<LineSegment>> &segmentVectors, std::vector<IntersectionPoint> &intersections) {
 	auto topLeft = Point::Origin;
 	auto bottomRight = Point::Origin;
 
@@ -303,7 +318,7 @@ std::string Draw(const std::vector<std::vector<LineSegment>> &segmentVectors, st
 	return ss.str();
 }
 
-int processInput(const std::string &input, int verbose = 0) {
+auto processInput(const std::string &input, int verbose = 0) {
 	const auto brakePos = std::find(std::begin(input), std::end(input), '\n');
 	if (brakePos == std::end(input)) {
 		throw std::runtime_error("No line brake was found in the input.");
@@ -315,10 +330,10 @@ int processInput(const std::string &input, int verbose = 0) {
 	const auto segments1 = Render(instructions1);
 	const auto segments2 = Render(instructions2);
 
+	// std::cout << "Segments1: " << segments1 << std::endl;
+	// std::cout << "Segments2: " << segments2 << std::endl;
 
-
-
-	std::vector<Point> intersections;
+	std::vector<IntersectionPoint> intersections;
 
 	for (const auto &s1 : segments1) {
 		for (const auto &s2 : segments2) {
@@ -334,7 +349,7 @@ int processInput(const std::string &input, int verbose = 0) {
 	}
 	if(verbose) std::cout << intersections.size() << " intersections were found." << std::endl;
 	if(intersections.size() == 0) {
-		return 0;
+		return std::make_pair(0, 0);
 	}
 
 	const auto selected = *std::min_element(std::cbegin(intersections), std::cend(intersections));
@@ -343,12 +358,24 @@ int processInput(const std::string &input, int verbose = 0) {
 
 	if (verbose) std::cout<< "Selected intersection: " << selected << " with distance from " << Point::Origin << " = " << result << std::endl;
 
-	return result;
+	const auto selected2 = *std::min_element(
+		std::cbegin(intersections),
+		std::cend(intersections),
+		[](const auto &p1, const auto &p2) {
+			return p1.totalDistance < p2.totalDistance;
+		});
+
+	const auto result2 = selected2.totalDistance;
+
+	if (verbose)
+		std::cout << "Selected intersection: " << selected2 << " with total line distance from " << Point::Origin << " = " << result2 << std::endl;
+
+	return std::make_pair(result, result2);
 }
 
 bool test() {
-	const LineSegment s1 = {Direction::Right, 5, {-2, 0}, {2, 0}};
-	const LineSegment s2 = {Direction::Down, 5, {1, 2}, {1, -2}};
+	const LineSegment s1 = {Direction::Right, 5, 0, {-2, 0}, {2, 0}};
+	const LineSegment s2 = {Direction::Down, 5, 0, {1, 2}, {1, -2}};
 
 	auto p1 = Render(s1);
 	auto p2 = Render(s2);
@@ -360,13 +387,27 @@ bool test() {
 	}
 
 	bool success = true;
-	success = success && processInput(R"(R8,U5,L5,D3
-U7,R6,D4,L4)") == 6;
-	success = success && processInput(R"(R75,D30,R83,U83,L12,D49,R71,U7,L72
-U62,R66,U55,R34,D71,R55,D58,R83)") == 159;
-	success = success && processInput(R"(R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51
-U98,R91,D20,R16,D67,R40,U7,R15,U6,R7)") == 135;
-	
+	std::vector<std::tuple<int, int, std::string>> testCases = {
+		{6, 30, "R8,U5,L5,D3\nU7,R6,D4,L4"},
+		{159, 610, "R75,D30,R83,U83,L12,D49,R71,U7,L72\nU62,R66,U55,R34,D71,R55,D58,R83"},
+		{135, 410, "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51\nU98,R91,D20,R16,D67,R40,U7,R15,U6,R7"}
+	};
+
+	for(const auto &tc: testCases){
+
+		const auto result = processInput(std::get<2>(tc));
+		if (std::get<0>(tc) != result.first) {
+			std::cerr << "Bad first result of " << result.first << " (was expecting: " << std::get<0>(tc) << ")." << std::endl;
+			return false;
+		}
+		if(std::get<1>(tc) != result.second){
+			std::cerr << "Bad second result of " << result.second << " (was expecting: " << std::get<1>(tc) << ")." << std::endl;
+			return false;
+		}
+	}
+
+
+
 	return success;
 }
 
@@ -383,8 +424,3 @@ int main(int, const char*[]) {
 
 	return EXIT_SUCCESS;
 }
-
-// First:
-// not 1
-// not 5970
-// !! 5357
