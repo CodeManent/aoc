@@ -27,8 +27,14 @@ class IntCodeComputer
 	std::vector<int> data;
 	void (*outputHandler)(const int value) = nullptr;
 	int (*inputHandler)() = nullptr;
+	bool dasm = 0;
 
 public:
+	enum Subsystem{
+		AirCondition = 1,
+		ThermalRadiatorController = 5
+	};
+
 	void SetInputHandler(int (handler)()){
 		this->inputHandler = handler;
 	}
@@ -98,7 +104,7 @@ public:
 			stream >> tmp;
 			data.push_back(tmp);
 		}
-		data.resize(2048);
+		data.resize(99999+1);
 	}
 
 	auto operator[](const size_t position) const {
@@ -120,7 +126,7 @@ public:
 	};
 
 	bool Execute() {
-		for (std::vector<int>::size_type pc = 0; (*this)[pc] != 99 ; ++pc) {
+		for (std::vector<int>::size_type pc = 0; ;++pc) {
 
 			const auto &opcode = (*this)[pc];
 
@@ -130,37 +136,88 @@ public:
 
 				auto& memVal = (*this)[pc + i];
 				if(!pMode){
+					if (dasm) std::cout << " ["<< memVal << "-" << (*this)[memVal] << "]";
 					return (*this)[memVal];
 				}
+				if (dasm) std::cout << " " << memVal;
 				return memVal;
 			};
 
+			if (dasm) std::cout << pc << ":\t";
+
 			switch (opcode % 100) {
+			case 99:
+				if (dasm) std::cout << "halt\t" << std::endl;
+				return true;
+
 			case 1:
+				if (dasm) std::cout << "add\t";
 				Param(3) = Param(1) + Param(2);
 				pc += 3;
 				break;
 
 			case 2:
+				if (dasm) std::cout << "mul\t";
 				Param(3) = Param(1) * Param(2);
 				pc += 3;
 				break;
 
-			case 3:
-				Param(1) = inputHandler();
-
+			case 3:{
+				if (dasm) std::cout << "in\t";
+				auto& p = Param(1);
+				p = inputHandler();
+				if (dasm) std::cout << " < " << p;
+				++pc;
+				break;
+			}
+			case 4:
+				if (dasm) std::cout << "out\t";
+				outputHandler(Param(1));
 				++pc;
 				break;
 
-			case 4:
-				outputHandler(Param(1));
-				++pc;
+			case 5:{
+				if (dasm) std::cout << "jt\t";
+				const auto p1 = Param(1);
+				const auto p2 = Param(2);
+				if(p1){
+					pc = p2 - 1;
+				}
+				else{
+					pc += 2;
+				}
+				break;
+			}
+			case 6:{
+				if (dasm) std::cout << "jf\t";
+				const auto p1 = Param(1);
+				const auto p2 = Param(2);
+				if(p1 == 0){
+					pc = p2 - 1;
+				}
+				else{
+					pc += 2;
+				}
+				break;
+			}
+
+			case 7:
+				if (dasm) std::cout << "lt\t";
+				Param(3) = (Param(1) < Param(2));
+				pc += 3;
+				break;
+
+			case 8:
+				if (dasm) std::cout << "eq\t";
+				Param(3) = (Param(1) == Param(2));
+				pc += 3;
 				break;
 
 			default:
 				std::cerr << "Bad Opcode [" << (opcode % 100) << "] at position " << pc << std::endl;
 				return false;
 			}
+			if (dasm) std::cout << std::endl;
 		}
 
 		return true;

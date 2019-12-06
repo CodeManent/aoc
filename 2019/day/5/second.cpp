@@ -6,7 +6,7 @@ int main(const int argc, const char *const argv[]) {
 	IntCodeComputer computer(std::cin);
 
 	computer.SetInputHandler([]() -> int {
-		return IntCodeComputer::Subsystem::AirCondition;
+		return IntCodeComputer::Subsystem::ThermalRadiatorController;
 	});
 	computer.SetOutputHandler([](const int value){
 		std::cout << "> " << value << std::endl;
