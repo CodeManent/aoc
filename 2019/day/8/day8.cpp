@@ -14,7 +14,7 @@ struct Dimmentions{
 	}
 };
 
-typedef std::vector<int> Layer; // should be vector_view
+typedef std::vector<int> Layer;
 typedef std::vector<int> Image;
 
 enum Color {
@@ -46,7 +46,7 @@ int main(int, char**){
 			input.cbegin() + ((i+1) * d.size()));
 	}
 
-	std::map<std::pair<const Layer * const, const int>, const int> countMemory;
+	std::map<std::pair<const Layer *, int>, int> countMemory;
 	const auto count = [&](const auto &v, const int elem) -> int {
 		const auto key = std::make_pair(&v, elem);
 
