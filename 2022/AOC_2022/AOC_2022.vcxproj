@@ -132,6 +132,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AOC_2022.cpp" />
+    <ClCompile Include="Coords.cpp" />
     <ClCompile Include="day1.cpp" />
     <ClCompile Include="day2.cpp" />
     <ClCompile Include="day3.cpp" />
@@ -140,11 +141,13 @@
     <ClCompile Include="day6.cpp" />
     <ClCompile Include="day7.cpp" />
     <ClCompile Include="day8.cpp" />
+    <ClCompile Include="day9.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FilesystemPrinter.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="ParsingError.h" />
-    <ClCompile Include="Point.cpp" />
+    <ClCompile Include="Rope.cpp" />
+    <ClCompile Include="SizePoint.cpp" />
     <ClCompile Include="printers.cpp" />
     <ClCompile Include="TaggedStack.h" />
     <ClCompile Include="utils.cpp" />
@@ -165,8 +168,12 @@
     <Text Include="day_7_test_input.txt" />
     <Text Include="day_8_input.txt" />
     <Text Include="day_8_test_input.txt" />
+    <Text Include="day_9_input.txt" />
+    <Text Include="day_9_test_input.txt" />
+    <Text Include="day_9_test_input_2.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Coords.h" />
     <ClInclude Include="day.h" />
     <ClInclude Include="DeleteDirectorySelector.h" />
     <ClInclude Include="DirectorySizeComputer.h" />
@@ -174,7 +181,10 @@
     <ClInclude Include="FilesystemPrinter.h" />
     <ClInclude Include="FilteredDirSizeReporter.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="Point.h" />
+    <ClInclude Include="Point2.h" />
+    <ClInclude Include="PointOps.h" />
+    <ClInclude Include="Rope.h" />
+    <ClInclude Include="SizePoint.h" />
     <ClInclude Include="printers.h" />
     <ClInclude Include="StackCommand.h" />
     <ClInclude Include="utils.h" />

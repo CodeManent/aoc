@@ -1,9 +1,9 @@
 #include "Grid.h"
-#include "Point.h"
+#include "SizePoint.h"
 
 #include <cassert>
 
-Grid::Grid(size_t n, std::function<Grid::Location (const Point&)> locationValueProvider)
+Grid::Grid(size_t n, std::function<Grid::Location (const SizePoint&)> locationValueProvider)
     :n(n)
     , backingStore{}
 {
@@ -16,7 +16,7 @@ Grid::Grid(size_t n, std::function<Grid::Location (const Point&)> locationValueP
     }
 }
 
-const Grid::Location& Grid::at(const Point& location) const {
+const Grid::Location& Grid::at(const SizePoint& location) const {
     assert(location.x >= 0);
     assert(location.y >= 0);
     assert(location.x <= n);
@@ -25,7 +25,7 @@ const Grid::Location& Grid::at(const Point& location) const {
     return backingStore.at(location.y * n + location.x);
 }
 
-Grid::Location& Grid::at(const Point& location) {
+Grid::Location& Grid::at(const SizePoint& location) {
     assert(location.x >= 0);
     assert(location.y >= 0);
     assert(location.x <= n);
@@ -38,7 +38,7 @@ void Grid::visitTopDownLeftRight(Grid::LocationVisitor callback) {
     for (size_t y = 0; y < n; ++y) {
         for (size_t x = 0; x < n; ++x) {
 
-            const Point p{ x, y };
+            const SizePoint p{ x, y };
             callback(p, at(p));
         }
     }
@@ -48,7 +48,7 @@ void Grid::visitTopDownLeftRight(Grid::ConstLocationVisitor callback) const {
     for (size_t y = 0; y < n; ++y) {
         for (size_t x = 0; x < n; ++x) {
 
-            const Point p{ x, y };
+            const SizePoint p{ x, y };
             callback(p, at(p));
         }
     }
@@ -61,7 +61,7 @@ void Grid::visitBottomUpRightLeft(Grid::LocationVisitor callback) {
             const size_t x = shiftedX - 1;
             const size_t y = shiftedY - 1;
 
-            const Point p{ x, y };
+            const SizePoint p{ x, y };
 
             callback(p, at(p));
         }
@@ -75,7 +75,7 @@ void Grid::visitBottomUpRightLeft(Grid::ConstLocationVisitor callback) const {
             const size_t x = shiftedX - 1;
             const size_t y = shiftedY - 1;
 
-            const Point p{ x, y };
+            const SizePoint p{ x, y };
             callback(p, at(p));
         }
     }
@@ -87,7 +87,7 @@ void Grid::computeVisibility() {
 
     // top->bottom, left->right
 
-    visitTopDownLeftRight([this](const Point& loc, Location& current) {
+    visitTopDownLeftRight([this](const SizePoint& loc, Location& current) {
         if (loc.x > 0) {
 
             const auto& left = at({ loc.x - 1, loc.y });
@@ -122,7 +122,7 @@ void Grid::computeVisibility() {
     }
         });
 
-    visitBottomUpRightLeft([this](const Point& loc, Location& current) {
+    visitBottomUpRightLeft([this](const SizePoint& loc, Location& current) {
         if (loc.x + 1 != n) {
             const auto& right = at({ loc.x + 1, loc.y });
             current.maxRight = max(right.maxRight, right.treeSize);
@@ -156,7 +156,7 @@ void Grid::computeVisibility() {
     }
         });
 
-    visitTopDownLeftRight([this](const Point& loc, Location& current) {
+    visitTopDownLeftRight([this](const SizePoint& loc, Location& current) {
         current.isVisible = loc.x == 0
         || loc.x == n - 1
         || loc.y == 0

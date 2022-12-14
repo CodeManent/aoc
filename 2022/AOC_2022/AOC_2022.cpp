@@ -14,7 +14,8 @@ int main() {
         day5,
         day6,
         day7,
-        day8
+        day8,
+        day9,
     };
 
     for (int i = 0; i < days.size(); ++i) {

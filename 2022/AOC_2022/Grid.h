@@ -1,7 +1,7 @@
 #ifndef Grid_h_
 #define Grid_h_
 
-#include "Point.h"
+#include "SizePoint.h"
 #include <functional>
 
 #include <vector>
@@ -44,13 +44,13 @@ public:
     std::vector<Location> backingStore;
     size_t n;
 
-    Grid(size_t n,std::function<Location (const Point&)>);
+    Grid(size_t n,std::function<Location (const SizePoint&)>);
 
-    const Location& at(const Point& location) const;
-    Location& at(const Point& location);
+    const Location& at(const SizePoint& location) const;
+    Location& at(const SizePoint& location);
 
-    using LocationVisitor = std::function<void(const Point&, Location&)>;
-    using ConstLocationVisitor = std::function<void(const Point&, const Location&)>;
+    using LocationVisitor = std::function<void(const SizePoint&, Location&)>;
+    using ConstLocationVisitor = std::function<void(const SizePoint&, const Location&)>;
 
     void visitTopDownLeftRight(LocationVisitor callback);
     void visitTopDownLeftRight(ConstLocationVisitor callback) const;

@@ -11,7 +11,7 @@ DayResult day8() {
     const auto input = readFile("day_8_input.txt");
 
     const size_t n = std::max(input[0].length(), input.size());
-    const auto inputLocationMapper = [&input](const Point& p) -> Grid::Location {
+    const auto inputLocationMapper = [&input](const SizePoint& p) -> Grid::Location {
         return input[p.y][p.x] - '0';
     };
 

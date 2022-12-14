@@ -35,7 +35,6 @@ std::ostream& operator<<(std::ostream& os, const std::ranges::subrange<T>& r) {
     os << ')';
 
     return os;
-
 }
 
 template <typename T>
@@ -46,5 +45,14 @@ std::ostream& operator<<(std::ostream& os, const std::stack<T> q) {
 
 class Grid;
 std::ostream& operator<<(std::ostream& os, const Grid& g);
+
+template <typename T>
+class Point2;
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Point2<T>& p) {
+    return os << "(" << p.x << ", " << p.y << ")";
+}
+
 
 #endif // !_printers_h_
