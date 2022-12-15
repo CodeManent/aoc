@@ -80,3 +80,12 @@ ostream& operator<<(ostream& os, const Grid& g) {
 
     return os;
 }
+
+
+#include "Range.h"
+
+ostream& operator<<(ostream& os, const Range& r) {
+    os << '[' << r.start << '-' << r.end << ']';
+
+    return os;
+}

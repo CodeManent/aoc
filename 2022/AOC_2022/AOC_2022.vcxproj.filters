@@ -75,6 +75,12 @@
     <ClCompile Include="Rope.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="day10.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Range.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="day_1_input.txt">
@@ -131,6 +137,15 @@
     <Text Include="day_9_test_input_2.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="day_10_test_input.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="day_10_test_input_2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="day_10_input.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="day.h">
@@ -176,7 +191,10 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Range.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

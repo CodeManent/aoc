@@ -23,5 +23,6 @@ DayResult day6();
 DayResult day7();
 DayResult day8();
 DayResult day9();
+DayResult day10();
 
 #endif

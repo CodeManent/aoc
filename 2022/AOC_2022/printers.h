@@ -54,5 +54,8 @@ std::ostream& operator<<(std::ostream& os, const Point2<T>& p) {
     return os << "(" << p.x << ", " << p.y << ")";
 }
 
+class Range;
+
+std::ostream& operator<<(std::ostream& os, const Range& r);
 
 #endif // !_printers_h_

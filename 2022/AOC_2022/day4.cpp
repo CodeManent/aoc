@@ -1,43 +1,13 @@
 #include "day.h"
 #include "utils.h"
 
+#include "Range.h"
+
 #include <charconv>
 #include <stdexcept>
 #include <string_view>
 
 using namespace std;
-
-class Range {
-    int start;
-    int end;
-
-public:
-    Range(int start, int end)
-        :start(start)
-        , end(end)
-    {
-    }
-
-    bool contains(const int point) const {
-        return start <= point && point <= end;
-    }
-
-    bool contains(const Range& other) const {
-        return start <= other.start && other.end <= end;
-    }
-
-    bool overlaps(const Range& other) const {
-        return contains(other) || other.contains(*this) || contains(other.start) || contains(other.end);
-    }
-
-    //friend ostream& operator<<(ostream&, const Range&);
-};
-//
-//ostream& operator<<(ostream& os, const Range& r) {
-//    os << '[' << r.start << '-' << r.end << ']';
-//
-//    return os;
-//}
 
 Range parseRange(const string_view& input) {
     const auto dashLocation = input.begin() + input.find('-');
