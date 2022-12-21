@@ -135,6 +135,7 @@
     <ClCompile Include="Coords.cpp" />
     <ClCompile Include="day1.cpp" />
     <ClCompile Include="day10.cpp" />
+    <ClCompile Include="day11.cpp" />
     <ClCompile Include="day2.cpp" />
     <ClCompile Include="day3.cpp" />
     <ClCompile Include="day4.cpp" />
@@ -158,6 +159,8 @@
     <Text Include="day_10_input.txt" />
     <Text Include="day_10_test_input.txt" />
     <Text Include="day_10_test_input_2.txt" />
+    <Text Include="day_11_input.txt" />
+    <Text Include="day_11_test_input.txt" />
     <Text Include="day_1_input.txt" />
     <Text Include="day_1_test_input.txt" />
     <Text Include="day_2_input.txt" />
