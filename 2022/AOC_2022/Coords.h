@@ -11,4 +11,18 @@ extern const Coords Down;
 extern const Coords Left;
 extern const Coords Right;
 
+class CoordsHasher {
+public:
+	size_t operator()(const Coords&) const;
+};
+
+#include <functional>
+
+template<>
+struct std::hash<Coords> {
+	size_t operator()(const Coords& c) const {
+		return CoordsHasher()(c);
+	}
+};
+
 #endif

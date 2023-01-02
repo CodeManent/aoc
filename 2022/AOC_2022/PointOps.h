@@ -35,10 +35,15 @@ Point2<T> operator/(const Point2<T>& lhs, const auto& rhs) {
 }
 
 template <typename T>
-int manhattan(const Point2<T>& lhs, const Point2<T>& rhs) {
+T manhattan(const Point2<T>& lhs, const Point2<T>& rhs) {
 	const auto& d = rhs - lhs;
 	// inline abs implementation
 	return (d.x > T{} ? d.x : -d.x) + (d.y > T{} ? d.y : -d.y); //abs(d.x) + abs(d.y);
 }
 
+template <typename T>
+auto eucledian(const Point2<T>& lhs, const Point2<T>& rhs) {
+	const auto& d = rhs - lhs;
+	return sqrt(d.x * d.x + d.y * d.y);
+}
 #endif

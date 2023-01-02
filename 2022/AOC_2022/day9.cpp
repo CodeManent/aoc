@@ -58,12 +58,8 @@ DayResult day9() {
 
 	Rope rope{ 10, { 0, 0 } };
 
-	auto coordsHashFunc = [](const Coords& c) -> size_t {
-		return static_cast<size_t>(static_cast<uint64_t>(static_cast<uint32_t>(c.x)) << 32 | static_cast<uint32_t>(c.y));
-	};
-
-	unordered_set<Coords, decltype(coordsHashFunc)> visitedByTail;
-	unordered_set<Coords, decltype(coordsHashFunc)> visitedByTail2;
+	unordered_set<Coords, CoordsHasher> visitedByTail;
+	unordered_set<Coords, CoordsHasher> visitedByTail2;
 
 	for (const auto& line : lines) {
 
