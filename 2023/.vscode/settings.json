@@ -13,6 +13,9 @@
         "deque": "cpp",
         "unordered_map": "cpp",
         "vector": "cpp",
-        "optional": "cpp"
+        "optional": "cpp",
+        "sstream": "cpp",
+        "functional": "cpp",
+        "numeric": "cpp"
     }
 }

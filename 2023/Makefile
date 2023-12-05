@@ -10,9 +10,9 @@ SRC_DIR=src/
 INC_DIR=
 LIB_DIR=lib/
 
-DAYS=dayTemplate day1 day2 day3
+DAYS=dayTemplate day1 day2 day3 day4
 
-CURRENT_DAY=dayTemplate
+CURRENT_DAY=day4
 
 # Implicitly "created" rules like:
 # day1_SRC=day1.cpp
