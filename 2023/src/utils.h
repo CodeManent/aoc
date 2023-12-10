@@ -8,6 +8,8 @@
 #include <fstream>
 #include <sstream>
 #include <utility> // pair
+#include <iterator>
+#include <algorithm>
 
 #include <cstdlib>
 
@@ -81,5 +83,13 @@ std::ostream& operator<< (std::ostream& os, const std::pair<T1, T2>& p){
     return os << "pair[" << p.first << ", " << p.second << "]";
 }
 
+// Fill the vector from the input stream
+std::istream& operator >> (std::istream& is, std::vector<unsigned long>& v) {
+    std::copy(
+        std::istream_iterator<unsigned long>(is),
+        std::istream_iterator<unsigned long>(),
+        std::back_inserter(v));
+    return is;
+}
 
 #endif

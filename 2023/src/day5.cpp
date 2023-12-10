@@ -1,13 +1,9 @@
 #include "utils.h"
-#include <algorithm>
-#include <iterator>
 #include <ranges>
 #include <optional>
 #include <cmath>
 #include <bitset>
 #include <numeric>
-#include <list>
-#include <map>
 
 using namespace std;
 
@@ -213,13 +209,7 @@ ostream& operator<<(ostream &os, const State& state) {
     return os;
 }
 
-istream& operator >> (istream& is, vector<unsigned long>& v) {
-    copy(
-        istream_iterator<unsigned long>(is),
-        istream_iterator<unsigned long>(),
-        back_inserter(v));
-    return is;
-}
+
 
 State parseState(const vector<string>&input) {
     State result;
