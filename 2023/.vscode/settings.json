@@ -16,6 +16,7 @@
         "optional": "cpp",
         "sstream": "cpp",
         "functional": "cpp",
-        "numeric": "cpp"
+        "numeric": "cpp",
+        "stdexcept": "cpp"
     }
 }

@@ -77,13 +77,15 @@ endef
 run: $(TARGET_BINS)
 	$(foreach _bin,$(TARGET_BINS),$(call call_bin,$(_bin)))
 
-run_current: $($(CURRENT_DAY)_BIN)
-	$(call call_bin,$<)
+build_current: $($(CURRENT_DAY)_BIN)
+
+run_current: build_current
+	$(call call_bin,$($(CURRENT_DAY)_BIN))
 
 clean:
 	-$(RM) build/*
 
-.PHONY: run run_current clean compile/src/%.cpp
+.PHONY: run run_current build_current clean compile/src/%.cpp
 
 # Marks them as secondary so it won't rebuild them if not needed
 .SECONDARY: $(foreach _day,$(DAYS),$($(_day)_OBJECTS)) $(DEPENDENCIES)
