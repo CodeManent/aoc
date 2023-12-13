@@ -19,6 +19,7 @@
         "numeric": "cpp",
         "stdexcept": "cpp",
         "cmath": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "type_traits": "cpp"
     }
 }
