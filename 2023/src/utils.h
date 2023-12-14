@@ -84,10 +84,11 @@ std::ostream& operator<< (std::ostream& os, const std::pair<T1, T2>& p){
 }
 
 // Fill the vector from the input stream
-std::istream& operator >> (std::istream& is, std::vector<unsigned long>& v) {
+template <typename T>
+std::istream& operator >> (std::istream& is, std::vector<T>& v) {
     std::copy(
-        std::istream_iterator<unsigned long>(is),
-        std::istream_iterator<unsigned long>(),
+        std::istream_iterator<T>(is),
+        std::istream_iterator<T>(),
         std::back_inserter(v));
     return is;
 }

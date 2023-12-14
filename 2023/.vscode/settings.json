@@ -21,6 +21,7 @@
         "cmath": "cpp",
         "list": "cpp",
         "type_traits": "cpp",
-        "concepts": "cpp"
+        "concepts": "cpp",
+        "numbers": "cpp"
     }
 }
