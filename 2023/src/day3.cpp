@@ -5,6 +5,7 @@
 #include <numeric>
 #include <optional>
 #include <map>
+#include "Point.h"
 
 using namespace std;
 
@@ -18,75 +19,6 @@ const string test_raw_input = R"(467..114..
 ......755.
 ...$.*....
 .664.598..)";
-
-struct Point{
-    int x;
-    int y;
-
-    constexpr bool operator==(const Point& other) const {
-        return x == other.x && y == other.y;
-    }
-
-    constexpr Point operator+(const Point& other) const {
-        return Point {
-            x + other.x,
-            y + other.y
-        };
-    }
-
-    constexpr Point operator-(const Point& other) const {
-        return Point{
-            x - other.x,
-            y - other.y
-        };
-    }
-
-    constexpr Point operator*(const int& value) const {
-        return Point{
-            x * value,
-            y * value
-        };
-    }
-
-    constexpr Point operator/(const int& value) const {
-        return Point{
-            x / value,
-            y / value
-        };
-    }
-
-    constexpr Point right() const {
-        return Point{
-            x + 1,
-            y
-        };
-    }
-
-    constexpr Point left() const {
-        return Point{
-            x - 1,
-            y
-        };
-    }
-
-    constexpr Point up() const {
-        return Point{
-            x,
-            y - 1
-        };
-    }
-
-    constexpr Point down() const {
-        return Point{
-            x,
-            y + 1
-        };
-    }
-};
-
-ostream& operator<<(ostream& os, const Point& p) {
-    return os << "(" << p.x << ", " << p.y << ")";
-}
 
 struct NumberView{
     Point base;
@@ -128,7 +60,7 @@ ostream& operator << (ostream& os, const BoundingBox& bb) {
 }
 
 
-vector<NumberView> extractNumbers(int y, string line) {
+vector<NumberView> extractNumbers(long y, string line) {
     bool inNumber = false;
     vector<NumberView> result;
 
@@ -140,7 +72,7 @@ vector<NumberView> extractNumbers(int y, string line) {
             }
             else{
                 // add a number
-                result.emplace_back(Point{static_cast<int>(i), y}, 1);
+                result.emplace_back(Point{static_cast<long>(i), y}, 1);
                 inNumber = true;
             }
         }
@@ -156,7 +88,7 @@ vector<NumberView> extractNumbers(int y, string line) {
 
 long first(const vector<string>& input) {
     BoundingBox mapLimits{
-        {0, 0}, {static_cast<int>(input[0].size()-1), static_cast<int>(input.size()-1)}
+        {0, 0}, {static_cast<long>(input[0].size()-1), static_cast<long>(input.size()-1)}
     };
 
     auto tmpRes = views::iota(0UL, input.size())
@@ -171,7 +103,7 @@ long first(const vector<string>& input) {
         | views::filter([&input, &mapLimits](const NumberView& entry) {
             const auto bb = BoundingBox{
                 entry.base.up().left(),
-                entry.base.down() + Point{static_cast<int>(entry.length), 0}
+                entry.base.down() + Point{static_cast<long>(entry.length), 0}
             }.restrictIn(mapLimits);
 
             bool hasSymbol = false;
@@ -211,7 +143,7 @@ long first(const vector<string>& input) {
 
 long second(vector<string> input) {
     BoundingBox mapLimits{
-        {0, 0}, {static_cast<int>(input[0].size()-1), static_cast<int>(input.size()-1)}
+        {0, 0}, {static_cast<long>(input[0].size()-1), static_cast<long>(input.size()-1)}
     };
 
     auto tmpRes = views::iota(0UL, input.size())
@@ -226,7 +158,7 @@ long second(vector<string> input) {
         | views::transform([&input, &mapLimits](const NumberView& entry) {
             const auto bb = BoundingBox{
                 entry.base.up().left(),
-                entry.base.down() + Point{static_cast<int>(entry.length), 0}
+                entry.base.down() + Point{static_cast<long>(entry.length), 0}
             }.restrictIn(mapLimits);
 
             optional<Point> gearLocation{};
