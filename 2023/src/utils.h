@@ -10,6 +10,7 @@
 #include <utility> // pair
 #include <iterator>
 #include <algorithm>
+#include <optional>
 
 #include <cstdlib>
 
@@ -43,10 +44,15 @@ namespace utils {
     }
 }
 
-void assertEquals(const auto& expected, const auto& actual) {
+void assertEquals(const auto& expected, const auto& actual, const std::optional<std::string> message = std::nullopt) {
     if(expected != actual) {
         std::cerr << "Expected: " << expected << "\n" << "Actual: " << actual << std::endl;
-        throw std::runtime_error("Expected value does not equal to the actual one");
+        if(message.has_value() && message.value().size() != 0) {
+            throw std::runtime_error(message.value());
+        }
+        else{
+            throw std::runtime_error("Expected value does not equal to the actual one");
+        }
     }
 }
 
@@ -91,6 +97,13 @@ std::istream& operator >> (std::istream& is, std::vector<T>& v) {
         std::istream_iterator<T>(),
         std::back_inserter(v));
     return is;
+}
+
+template <typename T>
+constexpr auto is_equal_to(const T& value){
+    return [&value](const T& toCheck){
+        return value == toCheck;
+    };
 }
 
 #endif

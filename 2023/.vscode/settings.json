@@ -22,6 +22,7 @@
         "list": "cpp",
         "type_traits": "cpp",
         "concepts": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "compare": "cpp"
     }
 }
