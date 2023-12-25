@@ -23,6 +23,7 @@
         "type_traits": "cpp",
         "concepts": "cpp",
         "numbers": "cpp",
-        "compare": "cpp"
+        "compare": "cpp",
+        "iostream": "cpp"
     }
 }
