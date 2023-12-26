@@ -1,5 +1,4 @@
 #include "utils.h"
-#include "Point.h"
 #include <ranges>
 #include <numeric>
 #include <functional>
@@ -17,19 +16,8 @@ const string test_raw_input = R"(...#......
 .......#..
 #...#.....)";
 
-struct Grid {
-    vector<vector<char>> data;
-
-    const char& at(const Point&& p) const {
-        return data.at(p.y).at(p.x);
-    }
-    char& at(const Point&& p) {
-        return data.at(p.y).at(p.x);
-    }
-};
-
-Grid readGrid(const vector<string>& input) {
-    Grid result;
+utils::Grid<char> readGrid(const vector<string>& input) {
+    utils::Grid<char> result;
 
     result.data.reserve(input.size());
     for(const auto& line: input) {

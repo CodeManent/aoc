@@ -1,6 +1,8 @@
 #ifndef AOC_UTILS_h
 #define AOC_UTILS_h
 
+#include "Point.h"
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -42,6 +44,18 @@ namespace utils {
 
         return result;
     }
+
+    template <typename T>
+    struct Grid {
+        vector<vector<T>> data;
+
+        const T& at(const Point&& p) const {
+            return data.at(p.y).at(p.x);
+        }
+        T& at(const Point&& p) {
+            return data.at(p.y).at(p.x);
+        }
+    };
 }
 
 void assertEquals(const auto& expected, const auto& actual, const std::optional<std::string> message = std::nullopt) {
