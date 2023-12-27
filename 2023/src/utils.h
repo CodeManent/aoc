@@ -55,8 +55,18 @@ namespace utils {
         T& at(const Point&& p) {
             return data.at(p.y).at(p.x);
         }
+        
+        const vector<T>& at(const size_t&& p) const {
+            return data.at(p);
+        }
+        vector<T>& at(const size_t&& p) {
+            return data.at(p);
+        }
     };
 }
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const utils::Grid<T>& grid);
 
 void assertEquals(const auto& expected, const auto& actual, const std::optional<std::string> message = std::nullopt) {
     if(expected != actual) {
@@ -70,8 +80,20 @@ void assertEquals(const auto& expected, const auto& actual, const std::optional<
     }
 }
 
+void assertNotEquals(const auto& unexpected, const auto& actual, const std::optional<std::string> message = std::nullopt) {
+    if(unexpected == actual) {
+        std::cerr << "Unexpected value: " << actual << std::endl;
+        if(message.has_value() && message.value().size() != 0) {
+            throw std::runtime_error(message.value());
+        }
+        else{
+            throw std::runtime_error("Unexpected value equals the actual one");
+        }
+    }
+}
+
 template <typename T> 
-std::ostream& operator<<(std::ostream& os, std::vector<T> input){
+std::ostream& operator<<(std::ostream& os, const std::vector<T>& input){
     os << "vector[";
     bool first = true;
     for(const auto& elem : input) {
@@ -120,4 +142,14 @@ constexpr auto is_equal_to(const T& value){
     };
 }
 
+template<typename T>
+std::ostream& operator<<(std::ostream& os, const utils::Grid<T>& grid){
+    for(const auto& line: grid.data){
+        for(const auto& ch: line) {
+            os << ch;
+        }
+        os << '\n';
+    }
+    return os;
+}
 #endif

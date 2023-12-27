@@ -10,9 +10,9 @@ SRC_DIR=src/
 INC_DIR=
 LIB_DIR=lib/
 
-DAYS=dayTemplate day1 day2 day3 day4 day5 day6 day7 day8 day9 day10 day11 day12
+DAYS=dayTemplate day1 day2 day3 day4 day5 day6 day7 day8 day9 day10 day11 day12 day13
 
-CURRENT_DAY= day12
+CURRENT_DAY= day13
 
 # Implicitly "created" rules like:
 # day1_SRC=day1.cpp
@@ -34,7 +34,7 @@ $(foreach _day,$(DAYS),$(eval $($(_day)_BIN): $($(_day)_OBJECTS)))
 TARGET_BINS=$(foreach _day,$(DAYS),$($(_day)_BIN))
 
 # Compilation flags
-CXXFLAGS= -std=c++20 -Werror -Wall -Wextra -Wpedantic -g -fsanitize=address,leak,undefined
+CXXFLAGS= -std=c++23 -Werror -Wall -Wextra -Wpedantic -g -fsanitize=address,leak,undefined
 
 CXXFLAGS+=  $(addprefix -I, $(INC_DIR))
 
