@@ -20,49 +20,9 @@ const string test_raw_input = R"(467..114..
 ...$.*....
 .664.598..)";
 
-struct NumberView{
-    Point base;
-    size_t length;
-};
-ostream& operator<<(ostream& os, const NumberView& nv) {
-    return os << nv.base << "_" << nv.length;
-}
-
-struct BoundingBox{
-    Point topLeft;
-    Point bottomRight;
-
-    BoundingBox restrictIn(const BoundingBox& other) const {
-        return BoundingBox{
-            Point{
-                max(topLeft.x, other.topLeft.x),
-                max(topLeft.y, other.topLeft.y)
-            },
-            Point{
-                min(bottomRight.x, other.bottomRight.x),
-                min(bottomRight.y, other.bottomRight.y)
-            }
-        };
-    }
-
-    template <typename T>
-    void for_each_cell(T callable) const {
-        for(Point lineStart = topLeft; lineStart.y <= bottomRight.y; lineStart = lineStart.down()) {
-            for(Point current = lineStart; current.x <= bottomRight.x; current = current.right()) {
-                callable(current);
-            }
-        }
-    }
-};
-
-ostream& operator << (ostream& os, const BoundingBox& bb) {
-    return os << "BoundningBox{" << bb.topLeft << ", " << bb.bottomRight << "}";
-}
-
-
-vector<NumberView> extractNumbers(long y, string line) {
+vector<utils::NumberView> extractNumbers(long y, string line) {
     bool inNumber = false;
-    vector<NumberView> result;
+    vector<utils::NumberView> result;
 
     for(size_t i = 0; const char& ch : line) {
         if(isdigit(ch)) {
@@ -87,7 +47,7 @@ vector<NumberView> extractNumbers(long y, string line) {
 
 
 long first(const vector<string>& input) {
-    BoundingBox mapLimits{
+    utils::BoundingBox mapLimits{
         {0, 0}, {static_cast<long>(input[0].size()-1), static_cast<long>(input.size()-1)}
     };
 
@@ -100,8 +60,8 @@ long first(const vector<string>& input) {
             return extractNumbers(index, line);
         })
         | views::join
-        | views::filter([&input, &mapLimits](const NumberView& entry) {
-            const auto bb = BoundingBox{
+        | views::filter([&input, &mapLimits](const utils::NumberView& entry) {
+            const auto bb = utils::BoundingBox{
                 entry.base.up().left(),
                 entry.base.down() + Point{static_cast<long>(entry.length), 0}
             }.restrictIn(mapLimits);
@@ -116,7 +76,7 @@ long first(const vector<string>& input) {
 
             return hasSymbol;
         })
-        | views::transform([&input](const NumberView& entry) {
+        | views::transform([&input](const utils::NumberView& entry) {
             // extract number
             const auto line = input.at(entry.base.y);
 
@@ -142,7 +102,7 @@ long first(const vector<string>& input) {
 }
 
 long second(vector<string> input) {
-    BoundingBox mapLimits{
+    utils::BoundingBox mapLimits{
         {0, 0}, {static_cast<long>(input[0].size()-1), static_cast<long>(input.size()-1)}
     };
 
@@ -155,8 +115,8 @@ long second(vector<string> input) {
             return extractNumbers(index, line);
         })
         | views::join
-        | views::transform([&input, &mapLimits](const NumberView& entry) {
-            const auto bb = BoundingBox{
+        | views::transform([&input, &mapLimits](const utils::NumberView& entry) {
+            const auto bb = utils::BoundingBox{
                 entry.base.up().left(),
                 entry.base.down() + Point{static_cast<long>(entry.length), 0}
             }.restrictIn(mapLimits);

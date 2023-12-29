@@ -63,6 +63,38 @@ namespace utils {
             return data.at(p);
         }
     };
+
+    struct BoundingBox{
+        Point topLeft;
+        Point bottomRight;
+
+        BoundingBox restrictIn(const BoundingBox& other) const {
+            return BoundingBox{
+                Point{
+                    max(topLeft.x, other.topLeft.x),
+                    max(topLeft.y, other.topLeft.y)
+                },
+                Point{
+                    min(bottomRight.x, other.bottomRight.x),
+                    min(bottomRight.y, other.bottomRight.y)
+                }
+            };
+        }
+
+        template <typename T>
+        void for_each_cell(T callable) const {
+            for(Point lineStart = topLeft; lineStart.y <= bottomRight.y; lineStart = lineStart.down()) {
+                for(Point current = lineStart; current.x <= bottomRight.x; current = current.right()) {
+                    callable(current);
+                }
+            }
+        }
+    };
+
+    struct NumberView{
+        Point base;
+        size_t length;
+    };
 }
 
 template <typename T>
@@ -151,5 +183,13 @@ std::ostream& operator<<(std::ostream& os, const utils::Grid<T>& grid){
         os << '\n';
     }
     return os;
+}
+
+std::ostream& operator << (std::ostream& os, const utils::BoundingBox& bb) {
+    return os << "BoundningBox{" << bb.topLeft << ", " << bb.bottomRight << "}";
+}
+
+std::ostream& operator<<(std::ostream& os, const utils::NumberView& nv) {
+    return os << nv.base << "_" << nv.length;
 }
 #endif
