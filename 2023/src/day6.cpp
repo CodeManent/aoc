@@ -29,21 +29,15 @@ State parseState(const vector<string>& input) {
 
     auto currentLine = input.begin();
     {
-        if(!currentLine->starts_with("Time:")){
-            throw runtime_error("First line doesn't start with \"Time:\"");
-        }
         istringstream iss{*currentLine};
-        iss.ignore("Time:"s.length());
+        iss >> matchConsume("Time:");
         iss >> result.times;
     }
 
     ++currentLine;
     {
-        if(!currentLine->starts_with("Distance:")){
-            throw runtime_error("First line doesn't start with \"Distance:\"");
-        }
         istringstream iss{*currentLine};
-        iss.ignore("Distance:"s.length());
+        iss >> matchConsume("Distance:");
         iss >> result.distances;
     }
 
@@ -112,24 +106,18 @@ Race parseRace(const vector<string>& input) {
     auto currentLine = input.begin();
     {
         string line = *currentLine;
-        if(!line.starts_with("Time:")){
-            throw runtime_error("First line doesn't start with \"Time:\"");
-        }
         line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
         istringstream iss{line};
-        iss.ignore("Time:"s.length());
+        iss >> matchConsume("Time:");
         iss >> result.time;
     }
 
     ++currentLine;
     {
         string line = *currentLine;
-        if(!line.starts_with("Distance:")){
-            throw runtime_error("First line doesn't start with \"Distance:\"");
-        }
         line.erase(remove_if(line.begin(), line.end(), ::isspace), line.end());
         istringstream iss{line};
-        iss.ignore("Distance:"s.length());
+        iss >> matchConsume("Distance:");
         iss >> result.bestDistance;
     }
 

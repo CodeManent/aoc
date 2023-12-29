@@ -193,27 +193,18 @@ State parseState(const vector<string>&input) {
         throw runtime_error("Not enough input lines");
     }
 
-    // first line is the input seeds
-    if(!currentLine->starts_with("seeds: ")){
-        throw runtime_error("Parsing error 1: " + *currentLine);
-    }
-
     istringstream iss(*currentLine);
-    iss.ignore("seeds: "s.length());
+    iss >> matchConsume("seeds: ");
     iss >> result.seeds;
 
     ++currentLine;
-    if(*currentLine != ""){
-        throw runtime_error("Parsing error 2: " + *currentLine);
-    }
+    assertEquals("", *currentLine);
 
     while(currentLine != input.end()) {
         MappingContainer container;
 
         // consume empty line
-        if(*currentLine != "") {
-            throw runtime_error("Parsing error 3: " + *currentLine);
-        }
+        assertEquals("", *currentLine);
 
         ++currentLine;
         istringstream iss{*currentLine};
