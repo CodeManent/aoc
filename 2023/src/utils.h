@@ -90,6 +90,13 @@ namespace utils {
                 }
             }
         }
+
+        bool hit(const Point& p) const{
+            return topLeft.x <= p.x &&
+                topLeft.y <= p.y &&
+                p.x <= bottomRight.x &&
+                p.y <= bottomRight.y;
+        }
     };
 
     struct NumberView{

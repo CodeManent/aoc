@@ -83,16 +83,17 @@ vector<Point> expand(const Context& context, const Point&point) {
     const auto tile = context.entry.at(point.y).at(point.x);
     vector expanded = expand(point, tile);
     /// remove out-of-map-bounds points
+    utils::BoundingBox mapBoundingBox{
+        {0, 0},
+        {static_cast<long>(context.entry.front().size()), static_cast<long>(context.entry.size())}
+    };
+
     expanded.erase(
         remove_if(
             begin(expanded),
             end(expanded),
-            [&context](const Point& p) {
-                return p.x < 0 
-                    || p.y < 0
-                    || p.x >= static_cast<long>(context.entry.front().size())
-                    || p.y >= static_cast<long>(context.entry.size());
-            }),
+            not_fn(bind_front(mem_fn(&utils::BoundingBox::hit), mapBoundingBox))
+            ),
         end(expanded));
 
     return expanded;
