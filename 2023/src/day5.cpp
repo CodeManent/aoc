@@ -41,36 +41,9 @@ humidity-to-location map:
 60 56 37
 56 93 4)";
 
-struct Extent{
-    unsigned long base;
-    unsigned long length;
-
-    constexpr unsigned long end() const {
-        return base + length;
-    }
-
-    constexpr bool hit(unsigned long number) const {
-        return (base <= number) && (number <= (base + length-1));
-    }
-
-    constexpr pair<optional<Extent>, optional<Extent>> split(unsigned long number) const {
-        if(number <= base) {
-            return make_pair(nullopt, make_optional(*this));
-        }
-        if(end() < number) {
-            return make_pair(make_optional(*this), nullopt);
-        }
-        const auto d = number - base;
-        return make_pair(
-            make_optional(Extent{base, d}),
-            make_optional(Extent{number, length - d})
-        );
-    }
-};
-
 struct Mapping{
     unsigned long to;
-    Extent from;
+    utils::Extent from;
 
     constexpr bool hit(unsigned long number) const {
         return from.hit(number);
@@ -113,11 +86,11 @@ struct MappingContainer{
         }
     }
     
-    constexpr vector<Extent> project(const vector<Extent>& extents) const {
-        vector<Extent> result;
-        for(Extent extent: extents) {
+    constexpr vector<utils::Extent> project(const vector<utils::Extent>& extents) const {
+        vector<utils::Extent> result;
+        for(utils::Extent extent: extents) {
 
-            optional<Extent> remaining = make_optional(extent);
+            optional<utils::Extent> remaining = make_optional(extent);
 
             // could possibly define and use a lower/upper bound instead of iterating all the mappings
             for(const auto mapping: mappings) {
@@ -142,7 +115,7 @@ struct MappingContainer{
 
                 if(inRange.has_value()){
                     // only need to map the base.
-                    const Extent mapped{
+                    const utils::Extent mapped{
                         mapping.map(inRange.value().base),
                         inRange.value().length
                     };
@@ -159,7 +132,7 @@ struct MappingContainer{
             }
         }
 
-        sort(result.begin(), result.end(), [](const Extent& lhs, const Extent& rhs){
+        sort(result.begin(), result.end(), [](const utils::Extent& lhs, const utils::Extent& rhs){
             return lhs.base < rhs.base;
         });
 
@@ -183,7 +156,7 @@ struct State{
         return path.back();
     }
 
-    vector<Extent> seedsToLocations(vector<Extent> value) const {
+    vector<utils::Extent> seedsToLocations(vector<utils::Extent> value) const {
         
         for(const auto& mapping: mappings){
             value = mapping.project(value);
@@ -254,7 +227,7 @@ State parseState(const vector<string>&input) {
 
             istringstream iss{*currentLine};
             iss >> lineNumbers;
-            container.mappings.emplace_back(lineNumbers[0], Extent{lineNumbers[1], lineNumbers[2]});
+            container.mappings.emplace_back(lineNumbers[0], utils::Extent{lineNumbers[1], lineNumbers[2]});
         }
 
         sort(container.mappings.begin(), container.mappings.end(), [](const Mapping& lhs, const Mapping& rhs) {
@@ -269,10 +242,6 @@ State parseState(const vector<string>&input) {
     }
 
     return result;
-}
-
-ostream& operator<< (ostream& os, const Extent& extent) {
-    return os << "Extent[" << extent.base << ", " << extent.length << "]";
 }
 
 pair<long, long> compute(const vector<string>& input) {
@@ -294,15 +263,15 @@ pair<long, long> compute(const vector<string>& input) {
     //     }
     // }
 
-    vector<Extent> seedRanges;
+    vector<utils::Extent> seedRanges;
     for(size_t i = 0; i < state.seeds.size(); i += 2) {
-        seedRanges.emplace_back(Extent{state.seeds[i], state.seeds[i + 1]});
+        seedRanges.emplace_back(utils::Extent{state.seeds[i], state.seeds[i + 1]});
     }
     // print(seedRanges);
     const auto locationRanges = state.seedsToLocations(seedRanges);
     // since all the extents are monotonically increating, only the base is interesting to use
     auto locations2 = locationRanges
-        | views::transform([](const Extent& locationExtent) {
+        | views::transform([](const utils::Extent& locationExtent) {
             return locationExtent.base;
         });
 

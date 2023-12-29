@@ -101,6 +101,38 @@ namespace utils {
     struct InputStreamMatcher{
         T value;
     };
+
+    template <typename TValue = unsigned long, typename TLength = size_t>
+    struct GeneralExtent{
+        TValue base;
+        TLength length;
+
+        using CurrentExtentType = GeneralExtent<TValue, TLength>;
+
+        constexpr TValue end() const {
+            return base + length;
+        }
+
+        constexpr bool hit(TValue number) const {
+            return (base <= number) && (number <= (base + length-1));
+        }
+
+        constexpr std::pair<std::optional<CurrentExtentType>, std::optional<CurrentExtentType>> split(TValue number) const {
+            if(number <= base) {
+                return std::make_pair(nullopt, std::make_optional(*this));
+            }
+            if(end() < number) {
+                return std::make_pair(std::make_optional(*this), nullopt);
+            }
+            const auto d = number - base;
+            return std::make_pair(
+                std::make_optional(CurrentExtentType{base, d}),
+                std::make_optional(CurrentExtentType{number, length - d})
+            );
+        }
+    };
+
+    using Extent = GeneralExtent<>;
 }
 
 template <typename T>
@@ -197,6 +229,11 @@ std::ostream& operator << (std::ostream& os, const utils::BoundingBox& bb) {
 
 std::ostream& operator<<(std::ostream& os, const utils::NumberView& nv) {
     return os << nv.base << "_" << nv.length;
+}
+
+template <typename TValue, typename TLength>
+std::ostream& operator<< (std::ostream& os, const utils::GeneralExtent<TValue, TLength>& extent) {
+    return os << "Extent[" << extent.base << ", " << extent.length << "]";
 }
 
 template <typename T>
