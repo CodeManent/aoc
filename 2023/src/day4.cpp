@@ -57,27 +57,17 @@ ostream& operator<<(ostream& os, const Card& card) {
     return os;
 }
 
+
 Card parseCard(string input) {
     // cout << "Parsing line " << input << endl;
     istringstream iss{input};
 
-    {
-        string header;
-        iss >> header;
-        if(header != "Card") {
-            throw runtime_error("Card header not found");
-        }
-    }
+    iss >> matchConsume("Card");
+
     Card result;
     iss >> result.id;
 
-    {
-        char separator;
-        iss >> separator;
-        if(separator != ':'){
-            throw runtime_error("No separator found");
-        }
-    }
+    iss >> matchConsume(':');
 
     {
         string winningStr;

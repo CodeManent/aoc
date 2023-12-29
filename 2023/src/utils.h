@@ -13,6 +13,7 @@
 #include <iterator>
 #include <algorithm>
 #include <optional>
+#include <iterator>
 
 #include <cstdlib>
 
@@ -94,6 +95,11 @@ namespace utils {
     struct NumberView{
         Point base;
         size_t length;
+    };
+
+    template <typename T>
+    struct InputStreamMatcher{
+        T value;
     };
 }
 
@@ -192,4 +198,47 @@ std::ostream& operator << (std::ostream& os, const utils::BoundingBox& bb) {
 std::ostream& operator<<(std::ostream& os, const utils::NumberView& nv) {
     return os << nv.base << "_" << nv.length;
 }
+
+template <typename T>
+utils::InputStreamMatcher<T> matchConsume(T value) {
+    return utils::InputStreamMatcher{value};
+}
+
+std::istream& operator>>(std::istream& is, utils::InputStreamMatcher<char> toMatch) {
+    char actual = is.get();
+    assertEquals(toMatch.value, actual);
+    return is;
+}
+
+std::istream& operator>>(std::istream& is, utils::InputStreamMatcher<const char*> toMatch) {
+    size_t length = std::char_traits<const char>::length(toMatch.value);
+    std::vector<char> buffer;
+    buffer.reserve(length);
+    
+    for(size_t i = 0; i < length ; ++i) {
+        buffer.emplace_back(is.get());
+    }
+
+    auto [left, right] = mismatch(toMatch.value, toMatch.value + length, begin(buffer), end(buffer));
+    if(left != toMatch.value + length){
+        std::cerr << "Expected: " << toMatch.value;
+        std::cerr << "\nActual:" << std::string{buffer.begin(), buffer.end()};
+        std::cerr << "\nDifference at position: " << std::distance(toMatch.value, left);
+        std::cerr << std::endl;
+
+        throw std::runtime_error("Expected value does not equal to the actual one");
+    }
+    return is;
+}
+
+std::istream& operator>>(std::istream& is, utils::InputStreamMatcher<const std::string> toMatch) {
+    std::stringstream ss;
+    for(size_t i = 0; i < toMatch.value.length(); ++i) {
+        ss.put(is.get());
+    }
+
+    assertEquals(toMatch.value, ss.str());
+    return is;
+}
+
 #endif
