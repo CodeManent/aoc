@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <optional>
 #include <iterator>
+#include <ranges>
 
 #include <cstdlib>
 
@@ -48,20 +49,306 @@ namespace utils {
 
     template <typename T>
     struct Grid {
+        using value_type = T;
+
         vector<vector<T>> data;
 
-        const T& at(const Point&& p) const {
+        void grow(size_t width, size_t height, T fill) {
+            for(size_t row = 0; row < height; ++row) {
+                if(row < data.size()){
+                    // expand existing line
+                    vector<T>& dataRow = data[row];
+                    dataRow.reserve(max(width, dataRow.size()));
+                    for(size_t column = dataRow.size(); column < width; ++column) {
+                        dataRow.emplace_back(fill);
+                    }
+                }
+                else{
+                    data.emplace_back(vector<T>(width, fill));
+                }
+            }
+        }
+
+
+        template <typename TPointElement>
+        const T& at(const GenericPoint<TPointElement>& p) const {
             return data.at(p.y).at(p.x);
         }
-        T& at(const Point&& p) {
+
+        template <typename TPointElement>
+        T& at(const GenericPoint<TPointElement>& p) {
             return data.at(p.y).at(p.x);
+        }
+
+        /* Row element access pattern */
+        template <typename GridT>
+        struct RowElementIterator {
+            using iterator_category = std::random_access_iterator_tag;
+            using value_type = GridT::value_type;
+            using difference_type = std::ptrdiff_t;
+            using pointer = value_type*;
+            using reference = value_type&;
+
+            GridT * const grid;
+            GenericPoint<size_t> p;
+            explicit RowElementIterator(GridT * const grid, const size_t column, const size_t row)
+                : grid{grid}
+                , p{column, row}
+            {
+            }
+            constexpr RowElementIterator(const RowElementIterator&) = default;
+            constexpr RowElementIterator operator=(const RowElementIterator& other) {
+                assertEquals(grid, other.grid);
+                p = other.p;
+                return *this;
+            }
+            RowElementIterator operator++() { p.x++; return *this; }
+            RowElementIterator operator++(int) {auto retval = *this; ++(*this); return retval; }
+            RowElementIterator operator--() { p.x--; return *this; }
+            RowElementIterator operator--(int) {auto retval = *this; --(*this); return retval; }
+            bool operator==(const RowElementIterator other) const { return p == other.p; }
+            bool operator!=(const RowElementIterator other) const { return !(*this == other); }
+            auto operator*() const { return grid->at(p); }
+        };
+
+        /* Row element access pattern */
+        template <typename GridT>
+        struct ReverseRowElementIterator {
+            using iterator_category = std::random_access_iterator_tag;
+            using value_type = GridT::value_type;
+            using difference_type = std::ptrdiff_t;
+            using pointer = value_type*;
+            using reference = value_type&;
+
+            GridT * const grid;
+            GenericPoint<size_t> p;
+            explicit ReverseRowElementIterator(GridT * const grid, const size_t column, const size_t row)
+                : grid{grid}
+                , p{column, row}
+            {
+            }
+            constexpr ReverseRowElementIterator(const ReverseRowElementIterator&) = default;
+            constexpr ReverseRowElementIterator operator=(const ReverseRowElementIterator& other) {
+                assertEquals(grid, other.grid);
+                p = other.p;
+                return *this;
+            }
+            ReverseRowElementIterator operator++() { p.x--; return *this; }
+            ReverseRowElementIterator operator++(int) {auto retval = *this; --(*this); return retval; }
+            ReverseRowElementIterator operator--() { p.x++; return *this; }
+            ReverseRowElementIterator operator--(int) {auto retval = *this; ++(*this); return retval; }
+            bool operator==(const ReverseRowElementIterator other) const { return p == other.p; }
+            bool operator!=(const ReverseRowElementIterator other) const { return !(*this == other); }
+            auto operator*() const { return grid->at(p); }
+        };
+
+        template <typename GridT>
+        struct Row {
+            GridT * const grid;
+            const size_t row;
+            Row(GridT * const grid, const size_t row): grid{grid}, row{row} {};
+
+            auto begin() const {
+                return RowElementIterator{grid, 0, row};
+            }
+
+            auto end() const {
+                return RowElementIterator{grid, grid->data.size(), row};
+            };
+
+
+            auto rbegin() const {
+                return ReverseRowElementIterator{grid, grid->data.size() -1, row};
+            }
+
+            auto rend() const {
+                return ReverseRowElementIterator{grid, -1ul, row};
+            }
+        };
+
+        template <typename GridT>
+        struct RowIterator {
+            using iterator_category = std::random_access_iterator_tag;
+            using value_type = Row<GridT>;
+            using difference_type = std::ptrdiff_t;
+            using pointer = Row<GridT>*;
+            using reference = Row<GridT>&;
+
+            GridT * const grid;
+            size_t row;
+            explicit constexpr RowIterator(GridT * const grid, const size_t row): grid{grid}, row{row} {}
+            constexpr RowIterator(const RowIterator&) = default;
+            constexpr RowIterator operator=(const RowIterator& other){
+                assertEquals(grid, other.grid);
+                row = other.row;
+                return *this;
+            }
+            RowIterator operator++() { row++; return *this; }
+            RowIterator operator++(int) {auto retval = *this; ++(*this); return retval; }
+            RowIterator operator--() { row--; return *this; }
+            RowIterator operator--(int) {auto retval = *this; --(*this); return retval; }
+            bool operator==(const RowIterator& other) const { return row == other.row; }
+            bool operator!=(const RowIterator& other) const { return !(*this == other); }
+            auto operator*() const { return Row{grid, row}; }
+        };
+
+        auto beginRows() {
+            return RowIterator{this, 0ul};
         }
         
-        const vector<T>& at(const size_t&& p) const {
-            return data.at(p);
+        auto beginRows() const {
+            return RowIterator{this, 0ul};
         }
-        vector<T>& at(const size_t&& p) {
-            return data.at(p);
+
+        auto endRows() {
+            return RowIterator{this, this->data.front().size()};
+        }
+
+        auto endRows() const {
+            return RowIterator{this, this->data.front().size()};
+        }
+
+        /** Row element access pattern */
+        template <typename GridT>
+        struct ColumnElementIterator {
+            using iterator_category = std::random_access_iterator_tag;
+            using value_type = GridT::value_type;
+            using difference_type = std::ptrdiff_t;
+            using pointer = value_type*;
+            using reference = value_type&;
+
+            GridT * const grid;
+            GenericPoint<size_t> p;
+            
+            explicit constexpr ColumnElementIterator(GridT * const grid, const size_t column, const size_t row)
+                : grid(grid)
+                , p(column, row)
+            {
+            }
+            constexpr ColumnElementIterator(const ColumnElementIterator&) = default;
+            constexpr ColumnElementIterator operator=(const ColumnElementIterator& other) {
+                assertEquals(grid, other.grid);
+                p = other.p;
+                return *this;
+            }
+            ColumnElementIterator operator++() { p.y++; return *this; }
+            ColumnElementIterator operator++(int) {auto retval = *this; ++(*this); return retval; }
+            ColumnElementIterator operator--() { p.y--; return *this; }
+            ColumnElementIterator operator--(int) {auto retval = *this; --(*this); return retval; }
+            bool operator==(const ColumnElementIterator& other) const { return p == other.p; }
+            bool operator!=(const ColumnElementIterator& other) const { return !(*this == other); }
+            auto operator*() const { return grid->at(p); }
+        };
+
+        template <typename GridT>
+        struct ReverseColumnElementIterator {
+            using iterator_category = std::random_access_iterator_tag;
+            using value_type = GridT::value_type;
+            using difference_type = std::ptrdiff_t;
+            using pointer = value_type*;
+            using reference = value_type&;
+
+            GridT * const grid;
+            GenericPoint<size_t> p;
+            
+            explicit constexpr ReverseColumnElementIterator(GridT * const grid, const size_t column, const size_t row)
+                : grid(grid)
+                , p(column, row)
+            {
+            }
+            constexpr ReverseColumnElementIterator(const ReverseColumnElementIterator&) = default;
+            constexpr ReverseColumnElementIterator operator=(const ReverseColumnElementIterator& other) {
+                assertEquals(grid, other.grid);
+                p = other.p;
+                return *this;
+            }
+            ReverseColumnElementIterator operator++() { p.y--; return *this; }
+            ReverseColumnElementIterator operator++(int) {auto retval = *this; --(*this); return retval; }
+            ReverseColumnElementIterator operator--() { p.y++; return *this; }
+            ReverseColumnElementIterator operator--(int) {auto retval = *this; ++(*this); return retval; }
+            bool operator==(const ReverseColumnElementIterator& other) const { return p == other.p; }
+            bool operator!=(const ReverseColumnElementIterator& other) const { return !(*this == other); }
+            auto operator*() const { return grid->at(p); }
+        };
+
+
+        template <typename GridT>
+        struct Column {
+            GridT * const grid;
+            const size_t column;
+            Column(GridT * const grid, const size_t column): grid{grid}, column{column} {};
+
+            auto begin() const {
+                return ColumnElementIterator{grid, column, 0};
+            }
+
+            auto end() const {
+                return ColumnElementIterator{grid, column, grid->data.size()};
+            }
+
+            auto rbegin() const {
+                return ReverseColumnElementIterator{grid, column, grid->data.size() -1};
+            }
+
+            auto rend() const {
+                return ReverseColumnElementIterator{grid, column, -1ul};
+            }
+        };
+
+        template <typename GridT>
+        struct ColumnIterator {
+            using iterator_category = std::random_access_iterator_tag;
+            using value_type = Column<GridT>;
+            using difference_type = std::ptrdiff_t;
+            using pointer = Column<GridT>*;
+            using reference = Column<GridT>&;
+
+            GridT * const grid;
+            size_t column;
+            explicit constexpr ColumnIterator(GridT * const grid, const size_t column): grid{grid}, column{column} {}
+            constexpr ColumnIterator(const ColumnIterator&) = default;
+            constexpr ColumnIterator operator=(const ColumnIterator& other) {
+                assertEquals(grid, other.grid);
+                column = other.column;
+                return *this;
+            }
+            ColumnIterator operator++() { column++; return *this; }
+            ColumnIterator operator++(int) {auto retval = *this; ++(*this); return retval; }
+            ColumnIterator operator--() { column--; return *this; }
+            ColumnIterator operator--(int) {auto retval = *this; --(*this); return retval; }
+            bool operator==(const ColumnIterator other) const { return column == other.column; }
+            bool operator!=(const ColumnIterator other) const { return !(*this == other); }
+            auto operator*() const { return Column<GridT>{grid, column}; }
+        };
+
+        auto beginColumns() {
+            return ColumnIterator{this, 0};
+        }
+
+        auto endColumns() {
+            return ColumnIterator{this, this->data.front().size()};
+        }
+
+        auto beginColumns() const {
+            return ColumnIterator{this, 0};
+        }
+
+        auto endColumns() const {
+            return ColumnIterator{this, this->data.front().size()};
+        }
+
+        // row-wise check
+        bool operator==(const Grid<T>& other) const {
+            const auto [ours, others] = mismatch(
+                beginRows(), endRows(),
+                other.beginRows(), other.endRows(),
+                [] (const Row<const Grid<T>>& ourRow, const Row<const Grid<T>>& otherRow) -> bool {
+                    const auto [ours, others] = mismatch(
+                        ourRow.begin(), ourRow.end(),
+                        otherRow.begin(), otherRow.end());
+                    return ours == ourRow.end() && others == otherRow.end();
+                });
+            return ours == endRows() && others == other.endRows();
         }
     };
 

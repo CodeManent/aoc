@@ -3,70 +3,73 @@
 
 #include <iostream>
 
-struct Point{
-    long x;
-    long y;
+template <typename TElem = long>
+struct GenericPoint{
+    TElem x;
+    TElem y;
 
-    constexpr bool operator==(const Point& other) const {
+    constexpr bool operator==(const GenericPoint& other) const {
         return x == other.x && y == other.y;
     }
 
-    constexpr Point operator+(const Point& other) const {
-        return Point {
+    constexpr GenericPoint operator+(const GenericPoint& other) const {
+        return GenericPoint {
             x + other.x,
             y + other.y
         };
     }
 
-    constexpr Point operator-(const Point& other) const {
-        return Point{
+    constexpr GenericPoint operator-(const GenericPoint& other) const {
+        return GenericPoint{
             x - other.x,
             y - other.y
         };
     }
 
-    constexpr Point operator*(const long& value) const {
-        return Point{
+    constexpr GenericPoint operator*(const TElem& value) const {
+        return GenericPoint{
             x * value,
             y * value
         };
     }
 
-    constexpr Point operator/(const long& value) const {
-        return Point{
+    constexpr GenericPoint operator/(const TElem& value) const {
+        return GenericPoint{
             x / value,
             y / value
         };
     }
 
-    constexpr Point right() const {
-        return Point{
+    constexpr GenericPoint right() const {
+        return GenericPoint{
             x + 1,
             y
         };
     }
 
-    constexpr Point left() const {
-        return Point{
+    constexpr GenericPoint left() const {
+        return GenericPoint{
             x - 1,
             y
         };
     }
 
-    constexpr Point up() const {
-        return Point{
+    constexpr GenericPoint up() const {
+        return GenericPoint{
             x,
             y - 1
         };
     }
 
-    constexpr Point down() const {
-        return Point{
+    constexpr GenericPoint down() const {
+        return GenericPoint{
             x,
             y + 1
         };
     }
 };
+
+using Point = GenericPoint<long>;
 
 std::ostream& operator<<(std::ostream& os, const Point& p) {
     return os << "(" << p.x << ", " << p.y << ")";
