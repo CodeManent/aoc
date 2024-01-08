@@ -34,7 +34,7 @@ $(foreach _day,$(DAYS),$(eval $($(_day)_BIN): $($(_day)_OBJECTS)))
 TARGET_BINS=$(foreach _day,$(DAYS),$($(_day)_BIN))
 
 # Compilation flags
-CXXFLAGS= -std=c++23 -Werror -Wall -Wextra -Wpedantic -g -fsanitize=address,leak,undefined
+CXXFLAGS= -std=c++23 -Werror -Wall -Wextra -Wpedantic -g -fsanitize=address,leak,undefined -fconcepts-diagnostics-depth=4
 
 CXXFLAGS+=  $(addprefix -I, $(INC_DIR))
 

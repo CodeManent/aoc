@@ -91,23 +91,23 @@ Platform parseInput(const vector<string>& input) {
     return result;
 }
 
-template <typename TIter>
-void tiltElementLogic(Platform &result, TIter &elementIt, TIter &lastEmpty){
+template <typename TargetIterT, typename SourceIterT>
+void tiltElementLogic(TargetIterT targetIt, SourceIterT elementIt, TargetIterT &lastEmpty){
     const auto element = *elementIt;
+
     switch(element) {
         case Tile::Empty:
-            result.at(elementIt.p) = Tile::Empty;
+            *targetIt = Tile::Empty;
             break;
 
         case Tile::CubeRock:
-            result.at(elementIt.p) = Tile::CubeRock;
-            lastEmpty = elementIt;
-            ++lastEmpty;
+            *targetIt = Tile::CubeRock;
+            lastEmpty = next(targetIt);
             break;
         
         case Tile::RoundRock:
-            result.at(elementIt.p) = Tile::Empty;
-            result.at(lastEmpty.p) = Tile::RoundRock;
+            *targetIt = Tile::Empty;
+            *lastEmpty = Tile::RoundRock;
             ++lastEmpty;
             break;
     }
@@ -117,10 +117,14 @@ Platform tiltUp(const Platform& in) {
     Platform result;
     result.grow(in.data.front().size(), in.data.size(), Tile::Empty);
 
-    for(auto columnIt = in.beginColumns(); columnIt != in.endColumns(); ++columnIt) {
-        for(auto elementIt = (*columnIt).begin(), lastEmpty = elementIt; elementIt != (*columnIt).end(); ++elementIt) {
-            tiltElementLogic(result, elementIt, lastEmpty);
+    auto targetColumnIt = result.beginColumns();
+    for(const auto& column: in.columns()) {
+        auto targetIt = (*targetColumnIt).begin();
+        auto lastEmpty = targetIt;
+        for(auto sourceIt = column.begin(); sourceIt != column.end(); ++sourceIt, ++targetIt) {
+            tiltElementLogic(targetIt, sourceIt, lastEmpty);
         }
+        ++targetColumnIt;
     }
 
     return result;
@@ -130,10 +134,14 @@ Platform tiltDown(const Platform& in){
     Platform result;
     result.grow(in.data.front().size(), in.data.size(), Tile::Empty);
 
-    for(auto columnIt = in.beginColumns(); columnIt != in.endColumns(); ++columnIt) {
-        for(auto elementIt = (*columnIt).rbegin(), lastEmpty = elementIt; elementIt != (*columnIt).rend(); ++elementIt) {
-            tiltElementLogic(result, elementIt, lastEmpty);
+    auto targetColumnIt = result.beginColumns();
+    for(const auto& column: in.columns()) {
+        auto targetIt = (*targetColumnIt).rbegin();
+        auto lastEmpty = targetIt;
+        for(auto sourceIt = column.rbegin(); sourceIt != column.rend(); ++sourceIt, ++targetIt) {
+            tiltElementLogic(targetIt, sourceIt, lastEmpty);
         }
+        ++targetColumnIt;
     }
 
     return result;
@@ -143,10 +151,14 @@ Platform tiltLeft(const Platform& in){
     Platform result;
     result.grow(in.data.front().size(), in.data.size(), Tile::Empty);
 
-    for(auto rowIt = in.beginRows(); rowIt != in.endRows(); ++rowIt) {
-        for(auto elementIt = (*rowIt).begin(), lastEmpty = elementIt; elementIt != (*rowIt).end(); ++elementIt) {
-            tiltElementLogic(result, elementIt, lastEmpty);
+    auto targetRowIt = result.beginRows();
+    for(const auto& row: in.rows()) {
+        auto targetIt = (*targetRowIt).begin();
+        auto lastEmpty = targetIt;
+        for(auto sourceIt = row.begin(); sourceIt != row.end(); ++sourceIt, ++targetIt) {
+            tiltElementLogic(targetIt, sourceIt, lastEmpty);
         }
+        ++targetRowIt;
     }
 
     return result;
@@ -156,10 +168,14 @@ Platform tiltRight(const Platform& in){
     Platform result;
     result.grow(in.data.front().size(), in.data.size(), Tile::Empty);
 
-    for(auto rowIt = in.beginRows(); rowIt != in.endRows(); ++rowIt) {
-        for(auto elementIt = (*rowIt).rbegin(), lastEmpty = elementIt; elementIt != (*rowIt).rend(); ++elementIt) {
-            tiltElementLogic(result, elementIt, lastEmpty);
+    auto targetRowIt = result.beginRows();
+    for(const auto& row: in.rows()) {
+        auto targetIt = (*targetRowIt).rbegin();
+        auto lastEmpty = targetIt;
+        for(auto sourceIt = row.rbegin(); sourceIt != row.rend(); ++sourceIt, ++targetIt) {
+            tiltElementLogic(targetIt, sourceIt, lastEmpty);
         }
+        ++targetRowIt;
     }
 
     return result;
@@ -168,9 +184,9 @@ Platform tiltRight(const Platform& in){
 size_t computeLoad(const Platform& platform) {
     const size_t height = platform.data.size();
     size_t result = 0;
-    for(auto columnIt = platform.beginColumns(); columnIt != platform.endColumns(); ++columnIt) {
+    for(const auto& column: platform.columns()) {
         size_t rowScore = height;
-        for(const auto element : *columnIt) {
+        for(const auto element : column) {
             if(element == Tile::RoundRock){
                 result += rowScore;
             }
