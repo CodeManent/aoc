@@ -15,6 +15,7 @@
 #include <optional>
 #include <iterator>
 #include <ranges>
+#include <charconv>
 
 #include <cstdlib>
 
@@ -512,6 +513,31 @@ namespace utils {
     };
 
     using Extent = GeneralExtent<>;
+
+    template <typename T>
+    T parseNumber(const string_view input, const int base = 10) {
+        T value;
+        const auto [ptr, ec] = from_chars(input.begin(), input.end(), value, base);
+        if(ec == errc{}){
+            return value;
+        }
+
+        switch(ec) {
+            case errc::invalid_argument:
+                throw invalid_argument("Failed to parse a number from ["s + string(input) + "]");
+
+            case errc::result_out_of_range:
+                throw range_error(
+                    "Failed to parse a number from ["s
+                    + string(input)
+                    + "] at position "
+                    + to_string(distance(input.begin(), ptr)));
+
+            default:
+                // undefined error
+                throw runtime_error("Failed to parse a number from ["s + string(input) + "]: " + to_string(static_cast<long>(ec)));
+        }
+    }
 }
 
 template <typename T>
